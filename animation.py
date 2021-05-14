@@ -8,7 +8,7 @@ RIGHT_KEY_CODE = 261
 UP_KEY_CODE = 259
 DOWN_KEY_CODE = 258
 
-ROW = 15
+ROW = 1
 COLUMN = 40
 NEXT_ROW = 15
 NEXT_COLUMN = 40
@@ -97,6 +97,7 @@ def draw_frame(canvas, start_row, start_column, text, negative=False):
 
 async def animate_spaceship(canvas, iterator, timeout=1):
     multiplier = 0.7
+    rows_number, columns_number = canvas.getmaxyx()
 
     while True:
 
@@ -108,8 +109,16 @@ async def animate_spaceship(canvas, iterator, timeout=1):
 
         draw_frame(canvas, row, column, frame1, negative=True)
 
-        ROW += rows_direction
-        COLUMN += columns_direction
+        frame_rows_number, frame_columns_number = get_frame_size(frame1)
+
+        next_start_row = ROW+rows_direction
+        next_start_column = COLUMN+columns_direction
+
+        if rows_number>next_start_row+frame_rows_number and next_start_row>0:
+            ROW += rows_direction
+        if columns_number>next_start_column+frame_columns_number and next_start_column>0:
+            COLUMN += columns_direction
+
         row, column = ROW, COLUMN
 
         draw_frame(canvas, row, column, frame2)
@@ -155,3 +164,5 @@ def get_frame_size(text):
     rows = len(lines)
     columns = max([len(line) for line in lines])
     return rows, columns
+
+
