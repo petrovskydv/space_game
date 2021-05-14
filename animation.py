@@ -1,7 +1,6 @@
-import curses
 import asyncio
+import curses
 import random
-
 
 SPACE_KEY_CODE = 32
 LEFT_KEY_CODE = 260
@@ -14,22 +13,23 @@ COLUMN = 40
 NEXT_ROW = 15
 NEXT_COLUMN = 40
 
+
 async def blink(canvas, row, column, symbol='*', timeout=1):
     while True:
         canvas.addstr(row, column, symbol, curses.A_DIM)
-        for i in range(timeout*random.randint(1,2)):
+        for i in range(timeout * random.randint(1, 2)):
             await asyncio.sleep(0)
 
         canvas.addstr(row, column, symbol)
-        for i in range(int(timeout*0.3)):
+        for _ in range(int(timeout * 0.3)):
             await asyncio.sleep(0)
 
         canvas.addstr(row, column, symbol, curses.A_BOLD)
-        for i in range(int(timeout*0.5)):
+        for _ in range(int(timeout * 0.5)):
             await asyncio.sleep(0)
 
         canvas.addstr(row, column, symbol)
-        for i in range(int(timeout*0.3)):
+        for _ in range(int(timeout * 0.3)):
             await asyncio.sleep(0)
 
 
@@ -66,7 +66,7 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
 def draw_frame(canvas, start_row, start_column, text, negative=False):
     """Draw multiline text fragment on canvas, erase text instead of drawing if negative=True is specified."""
 
-    rows_number, columns_number = canvas.getmaxyx()  
+    rows_number, columns_number = canvas.getmaxyx()
 
     for row, line in enumerate(text.splitlines(), round(start_row)):
         if row < 0:
@@ -81,7 +81,7 @@ def draw_frame(canvas, start_row, start_column, text, negative=False):
 
             if column >= columns_number:
                 break
-                
+
             if symbol == ' ':
                 continue
 
@@ -96,31 +96,30 @@ def draw_frame(canvas, start_row, start_column, text, negative=False):
 
 
 async def animate_spaceship(canvas, iterator, timeout=1):
-
     multiplier = 0.7
 
     while True:
 
         rows_direction, columns_direction, space_pressed = read_controls(canvas)
         global ROW, COLUMN
-        row, column = ROW, COLUMN 
+        row, column = ROW, COLUMN
 
         frame1, frame2 = next(iterator)
 
         draw_frame(canvas, row, column, frame1, negative=True)
-        
+
         ROW += rows_direction
         COLUMN += columns_direction
         row, column = ROW, COLUMN
 
         draw_frame(canvas, row, column, frame2)
-        for i in range(int(timeout*multiplier)):
+        for _ in range(int(timeout * multiplier)):
             await asyncio.sleep(0)
 
 
 def read_controls(canvas):
-    """Read keys pressed and returns tuple witl controls state."""
-    
+    """Read keys pressed and returns tuple with controls state."""
+
     rows_direction = columns_direction = 0
     space_pressed = False
 
@@ -145,5 +144,5 @@ def read_controls(canvas):
 
         if pressed_key_code == SPACE_KEY_CODE:
             space_pressed = True
-    
+
     return rows_direction, columns_direction, space_pressed

@@ -1,27 +1,14 @@
-import time
 import curses
-import asyncio
 import random
-from animation import blink, fire, animate_spaceship, read_controls
-from utils import get_frame
 from itertools import cycle
+
+from animation import blink, fire, animate_spaceship
+from utils import get_frame
 
 TIC_TIMEOUT = 500
 
-SPACE_KEY_CODE = 32
-LEFT_KEY_CODE = 260
-RIGHT_KEY_CODE = 261
-UP_KEY_CODE = 259
-DOWN_KEY_CODE = 258
 
-ROW = 15
-COLUMN = 40
-NEXT_ROW = 15
-NEXT_COLUMN = 40
-
-
-
-def draw_asterisk(canvas):
+def draw(canvas):
     curses.curs_set(False)
     canvas.border()
     canvas.nodelay(True)
@@ -40,16 +27,13 @@ def draw_asterisk(canvas):
 
     spaceship_coroutine = animate_spaceship(canvas, frames_iterator, timeout=TIC_TIMEOUT)
 
-    stars_coroutines = [blink
-    (
-        canvas, 
-        random.randint(1,height-2), 
-        random.randint(1,width-2), 
-        symbol = random.choice(stars),
-        timeout = TIC_TIMEOUT
-    ) for i in range(1, 100)]
+    stars_coroutines = [blink(canvas,
+                              random.randint(1, height - 2),
+                              random.randint(1, width - 2),
+                              symbol=random.choice(stars),
+                              timeout=TIC_TIMEOUT) for _ in range(1, 100)]
 
-    fire_coroutines = [fire(canvas, height-2, 10)]
+    fire_coroutines = [fire(canvas, height - 2, 10)]
 
     while True:
 
@@ -71,4 +55,4 @@ def draw_asterisk(canvas):
 
 if __name__ == '__main__':
     curses.update_lines_cols()
-    curses.wrapper(draw_asterisk)
+    curses.wrapper(draw)
