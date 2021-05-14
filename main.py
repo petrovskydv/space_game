@@ -15,7 +15,10 @@ def draw(canvas):
     canvas.nodelay(True)
 
     height, width = canvas.getmaxyx()
+    before_border_row = height - 2
+    before_border_column = width - 2
     stars = '+*.:'
+    fire_row_number = 10
 
     frame1 = get_frame('frames/rocket_frame_1.txt')
     frame2 = get_frame('frames/rocket_frame_2.txt')
@@ -28,10 +31,10 @@ def draw(canvas):
 
     spaceship_coroutine = animate_spaceship(canvas, frames_iterator, timeout=TIC_TIMEOUT)
 
-    stars_coroutines = [blink(canvas, random.randint(1, height - 2), random.randint(1, width - 2),
+    stars_coroutines = [blink(canvas, random.randint(1, before_border_row), random.randint(1, before_border_column),
                               symbol=random.choice(stars), timeout=TIC_TIMEOUT) for _ in range(1, STARS_NUMBER)]
 
-    fire_coroutines = [fire(canvas, height - 2, 10)]
+    fire_coroutines = [fire(canvas, before_border_row, fire_row_number)]
 
     while True:
 

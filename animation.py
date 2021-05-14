@@ -111,12 +111,12 @@ async def animate_spaceship(canvas, iterator, timeout=1):
 
         frame_rows_number, frame_columns_number = get_frame_size(frame1)
 
-        next_start_row = ROW+rows_direction
-        next_start_column = COLUMN+columns_direction
+        next_start_row = ROW + rows_direction
+        next_start_column = COLUMN + columns_direction
 
-        if rows_number>next_start_row+frame_rows_number and next_start_row>0:
+        if rows_number > next_start_row + frame_rows_number and next_start_row > 0:
             ROW += rows_direction
-        if columns_number>next_start_column+frame_columns_number and next_start_column>0:
+        if columns_number > next_start_column + frame_columns_number and next_start_column > 0:
             COLUMN += columns_direction
 
         row, column = ROW, COLUMN
@@ -159,10 +159,8 @@ def read_controls(canvas):
 
 def get_frame_size(text):
     """Calculate size of multiline text fragment, return pair — number of rows and colums."""
-    
+
     lines = text.splitlines()
     rows = len(lines)
     columns = max([len(line) for line in lines])
     return rows, columns
-
-
