@@ -17,7 +17,7 @@ NEXT_COLUMN = 40
 async def blink(canvas, row, column, symbol='*', timeout=1):
     while True:
         canvas.addstr(row, column, symbol, curses.A_DIM)
-        for i in range(timeout * random.randint(1, 2)):
+        for _ in range(timeout * random.randint(1, 2)):
             await asyncio.sleep(0)
 
         canvas.addstr(row, column, symbol)

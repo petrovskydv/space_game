@@ -6,6 +6,7 @@ from animation import blink, fire, animate_spaceship
 from utils import get_frame
 
 TIC_TIMEOUT = 500
+STARS_NUMBER = 100
 
 
 def draw(canvas):
@@ -27,11 +28,8 @@ def draw(canvas):
 
     spaceship_coroutine = animate_spaceship(canvas, frames_iterator, timeout=TIC_TIMEOUT)
 
-    stars_coroutines = [blink(canvas,
-                              random.randint(1, height - 2),
-                              random.randint(1, width - 2),
-                              symbol=random.choice(stars),
-                              timeout=TIC_TIMEOUT) for _ in range(1, 100)]
+    stars_coroutines = [blink(canvas, random.randint(1, height - 2), random.randint(1, width - 2),
+                              symbol=random.choice(stars), timeout=TIC_TIMEOUT) for _ in range(1, STARS_NUMBER)]
 
     fire_coroutines = [fire(canvas, height - 2, 10)]
 
