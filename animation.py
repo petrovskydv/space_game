@@ -10,8 +10,6 @@ DOWN_KEY_CODE = 258
 
 ROW = 1
 COLUMN = 40
-NEXT_ROW = 15
-NEXT_COLUMN = 40
 
 
 async def blink(canvas, row, column, symbol='*', timeout=1):
@@ -103,25 +101,22 @@ async def animate_spaceship(canvas, iterator, timeout=1):
 
         rows_direction, columns_direction, space_pressed = read_controls(canvas)
         global ROW, COLUMN
-        row, column = ROW, COLUMN
 
-        frame1, frame2 = next(iterator)
+        current_frame, next_frame = next(iterator)
 
-        draw_frame(canvas, row, column, frame1, negative=True)
+        draw_frame(canvas, ROW, COLUMN, current_frame, negative=True)
 
-        frame_rows_number, frame_columns_number = get_frame_size(frame1)
+        frame_rows_number, frame_columns_number = get_frame_size(next_frame)
 
         next_start_row = ROW + rows_direction
         next_start_column = COLUMN + columns_direction
 
         if rows_number > next_start_row + frame_rows_number and next_start_row > 0:
-            ROW += rows_direction
+            ROW = next_start_row
         if columns_number > next_start_column + frame_columns_number and next_start_column > 0:
-            COLUMN += columns_direction
+            COLUMN = next_start_column
 
-        row, column = ROW, COLUMN
-
-        draw_frame(canvas, row, column, frame2)
+        draw_frame(canvas, ROW, COLUMN, next_frame)
         for _ in range(int(timeout * multiplier)):
             await asyncio.sleep(0)
 
