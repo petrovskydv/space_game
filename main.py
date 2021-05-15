@@ -5,7 +5,7 @@ from itertools import cycle
 from animation import blink, fire, animate_spaceship
 from utils import get_frame
 
-TIC_TIMEOUT = 500
+TIC_TIMEOUT = 2000
 STARS_NUMBER = 100
 
 
