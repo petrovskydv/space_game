@@ -40,19 +40,19 @@ def draw(canvas):
 
         for star_coroutine in stars_coroutines:
             star_coroutine.send(None)
-            canvas.refresh()
+            # canvas.refresh()
 
         spaceship_coroutine.send(None)
-        canvas.refresh()
+        # canvas.refresh()
 
         for fire_coroutine in fire_coroutines.copy():
             try:
                 fire_coroutine.send(None)
-                canvas.refresh()
+                # canvas.refresh()
             except StopIteration:
                 fire_coroutines.remove(fire_coroutine)
                 canvas.border()
-
+        canvas.refresh()
 
 if __name__ == '__main__':
     curses.update_lines_cols()
