@@ -93,7 +93,7 @@ def draw_frame(canvas, start_row, start_column, text, negative=False):
             canvas.addch(row, column, symbol)
 
 
-async def animate_spaceship(canvas, iterator, timeout=1):
+async def animate_spaceship(canvas, frames_cycle, timeout=1):
     multiplier = 0.7
     rows_number, columns_number = canvas.getmaxyx()
 
@@ -102,7 +102,7 @@ async def animate_spaceship(canvas, iterator, timeout=1):
         rows_direction, columns_direction, space_pressed = read_controls(canvas)
         global ROW, COLUMN
 
-        current_frame, next_frame = next(iterator)
+        current_frame, next_frame = next(frames_cycle)
 
         draw_frame(canvas, ROW, COLUMN, current_frame, negative=True)
 

@@ -27,9 +27,9 @@ def draw(canvas):
         (frame1, frame2),
         (frame2, frame1)
     ]
-    frames_iterator = cycle(frames)
+    frames_cycle = cycle(frames)
 
-    spaceship_coroutine = animate_spaceship(canvas, frames_iterator, timeout=TIC_TIMEOUT)
+    spaceship_coroutine = animate_spaceship(canvas, frames_cycle, timeout=TIC_TIMEOUT)
 
     stars_coroutines = [blink(canvas, random.randint(1, before_border_row), random.randint(1, before_border_column),
                               symbol=random.choice(stars), timeout=TIC_TIMEOUT) for _ in range(1, STARS_NUMBER)]
