@@ -15,20 +15,17 @@ COLUMN = 40
 async def blink(canvas, row, column, symbol='*', timeout=1):
     while True:
         canvas.addstr(row, column, symbol, curses.A_DIM)
-        for _ in range(timeout * random.randint(1, 2)):
-            await asyncio.sleep(0)
+        await sleep(timeout * random.randint(1, 2))
 
         canvas.addstr(row, column, symbol)
-        for _ in range(int(timeout * 0.3)):
-            await asyncio.sleep(0)
+        await sleep(int(timeout * 0.3))
 
         canvas.addstr(row, column, symbol, curses.A_BOLD)
-        for _ in range(int(timeout * 0.5)):
-            await asyncio.sleep(0)
+        await sleep(int(timeout * 0.5))
 
         canvas.addstr(row, column, symbol)
-        for _ in range(int(timeout * 0.3)):
-            await asyncio.sleep(0)
+        await sleep(int(timeout * 0.3))
+
 
 
 async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0):
@@ -117,8 +114,7 @@ async def animate_spaceship(canvas, frames_cycle, timeout=1):
             COLUMN = next_start_column
 
         draw_frame(canvas, ROW, COLUMN, next_frame)
-        for _ in range(int(timeout * multiplier)):
-            await asyncio.sleep(0)
+        await sleep(int(timeout * multiplier))
 
 
 def read_controls(canvas):
@@ -172,8 +168,7 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5, timeout=1):
 
     while row < rows_number:
         draw_frame(canvas, row, column, garbage_frame)
-        for _ in range(int(timeout * 0.2)):
-            await asyncio.sleep(0)
+        await sleep(int(timeout * 0.2))
         draw_frame(canvas, row, column, garbage_frame, negative=True)
         row += speed
 
@@ -188,5 +183,9 @@ async def fill_orbit_with_garbage(garbage_coroutines, canvas, garbage_frames, ma
                 timeout=timeout
             )
         )
-        for _ in range(int(timeout * 5)):
-            await asyncio.sleep(0)
+        await sleep(int(timeout * 5))
+
+
+async def sleep(tics=1):
+    for _ in range(tics):
+        await asyncio.sleep(0)
