@@ -2,6 +2,8 @@ import asyncio
 import curses
 import random
 
+from physics import update_speed
+
 SPACE_KEY_CODE = 32
 LEFT_KEY_CODE = 260
 RIGHT_KEY_CODE = 261
@@ -92,6 +94,7 @@ def draw_frame(canvas, start_row, start_column, text, negative=False):
 async def animate_spaceship(canvas, frames_cycle, timeout=1):
     multiplier = 0.7
     rows_number, columns_number = canvas.getmaxyx()
+    row_speed = column_speed = 0
 
     while True:
 
@@ -104,8 +107,10 @@ async def animate_spaceship(canvas, frames_cycle, timeout=1):
 
         frame_rows_number, frame_columns_number = get_frame_size(next_frame)
 
-        next_start_row = ROW + rows_direction
-        next_start_column = COLUMN + columns_direction
+        row_speed, column_speed = update_speed(row_speed, column_speed, rows_direction, columns_direction)
+
+        next_start_row = ROW + rows_direction + row_speed
+        next_start_column = COLUMN + columns_direction + column_speed
 
         if rows_number > next_start_row + frame_rows_number and next_start_row > 0:
             ROW = next_start_row
