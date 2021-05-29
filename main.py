@@ -2,10 +2,10 @@ import curses
 import random
 from itertools import cycle
 
-from animation import blink, fire, animate_spaceship
+from animation import blink, fire, animate_spaceship, fly_garbage
 from utils import get_frame
 
-TIC_TIMEOUT = 2000
+TIC_TIMEOUT = 5000
 STARS_NUMBER = 100
 
 
@@ -22,6 +22,7 @@ def draw(canvas):
 
     frame1 = get_frame('frames/rocket_frame_1.txt')
     frame2 = get_frame('frames/rocket_frame_2.txt')
+    garbage_frame = get_frame('frames/duck.txt')
 
     frames = [
         (frame1, frame2),
@@ -36,23 +37,30 @@ def draw(canvas):
 
     fire_coroutines = [fire(canvas, before_border_row, fire_row_number)]
 
+    garbage_coroutines = [fly_garbage(canvas, column=10, garbage_frame=garbage_frame, timeout=TIC_TIMEOUT)]
+
     while True:
 
         for star_coroutine in stars_coroutines:
             star_coroutine.send(None)
-            # canvas.refresh()
 
         spaceship_coroutine.send(None)
-        # canvas.refresh()
 
         for fire_coroutine in fire_coroutines.copy():
             try:
                 fire_coroutine.send(None)
-                # canvas.refresh()
             except StopIteration:
                 fire_coroutines.remove(fire_coroutine)
-                canvas.border()
+
+        for garbage_coroutine in garbage_coroutines.copy():
+            try:
+                garbage_coroutine.send(None)
+            except StopIteration:
+                garbage_coroutines.remove(garbage_coroutine)
+
+        canvas.border()
         canvas.refresh()
+
 
 if __name__ == '__main__':
     curses.update_lines_cols()
