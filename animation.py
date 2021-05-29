@@ -27,7 +27,6 @@ async def blink(canvas, row, column, symbol='*', timeout=1):
         await sleep(int(timeout * 0.3))
 
 
-
 async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0):
     """Display animation of gun shot, direction and speed can be specified."""
 
@@ -175,11 +174,13 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5, timeout=1):
 
 async def fill_orbit_with_garbage(garbage_coroutines, canvas, garbage_frames, max_column, timeout=1):
     while True:
+        frame = random.choice(garbage_frames)
+        frame_rows_number, frame_columns_number = get_frame_size(frame)
         garbage_coroutines.append(
             fly_garbage(
                 canvas,
-                column=random.randint(1, max_column),
-                garbage_frame=random.choice(garbage_frames),
+                column=random.randint(1, max_column - frame_columns_number),
+                garbage_frame=frame,
                 timeout=timeout
             )
         )
