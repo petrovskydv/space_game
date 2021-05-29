@@ -176,3 +176,17 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5, timeout=1):
             await asyncio.sleep(0)
         draw_frame(canvas, row, column, garbage_frame, negative=True)
         row += speed
+
+
+async def fill_orbit_with_garbage(garbage_coroutines, canvas, garbage_frames, max_column, timeout=1):
+    while True:
+        garbage_coroutines.append(
+            fly_garbage(
+                canvas,
+                column=random.randint(1, max_column),
+                garbage_frame=random.choice(garbage_frames),
+                timeout=timeout
+            )
+        )
+        for _ in range(int(timeout * 5)):
+            await asyncio.sleep(0)
