@@ -1,6 +1,7 @@
 import asyncio
 import curses
 import random
+import uuid
 
 from curses_tools import draw_frame, get_frame_size, read_controls
 from obstacles import Obstacle, show_obstacles
@@ -8,6 +9,7 @@ from physics import update_speed
 
 ROW = 1
 COLUMN = 40
+OBSTACLES = []
 
 
 async def blink(canvas, row, column, symbol='*', timeout=1):
@@ -101,21 +103,39 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5, timeout=1, obsta
         draw_frame(canvas, row, column, garbage_frame)
         await sleep(int(timeout * 0.2))
         draw_frame(canvas, row, column, garbage_frame, negative=True)
+        obstacle.row = row
+        obstacle.column = column
         row += speed
 
 
-async def fill_orbit_with_garbage(garbage_coroutines, canvas, garbage_frames, max_column, timeout=1):
+async def fill_orbit_with_garbage(garbage_coroutines, obstacles_coroutines, canvas, garbage_frames, max_column, timeout=1):
     while True:
         frame = random.choice(garbage_frames)
         frame_rows_number, frame_columns_number = get_frame_size(frame)
+
+        frame_column = random.randint(1, max_column - frame_columns_number)
+        frame_uid = uuid.uuid4()
+
+        global OBSTACLES
+        obstacle = Obstacle(
+            1,
+            frame_column,
+            frame_rows_number,
+            frame_columns_number,
+            uid=frame_uid
+        )
+        OBSTACLES.append(obstacle)
+
         garbage_coroutines.append(
             fly_garbage(
                 canvas,
-                column=random.randint(1, max_column - frame_columns_number),
+                column=frame_column,
                 garbage_frame=frame,
-                timeout=timeout
+                timeout=timeout,
+                obstacle=obstacle
             )
         )
+        obstacles_coroutines.append(show_obstacles(canvas, OBSTACLES))
         await sleep(int(timeout * 5))
 
 

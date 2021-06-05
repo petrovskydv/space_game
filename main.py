@@ -5,10 +5,11 @@ from itertools import cycle
 from animation import blink, animate_spaceship, fill_orbit_with_garbage
 from utils import get_frame
 
-TIC_TIMEOUT = 5000
+TIC_TIMEOUT = 2000
 STARS_NUMBER = 100
 ORBIT_GARBAGE_COROUTINES = []
 FIRE_COROUTINES = []
+OBSTACLES_COROUTINES = []
 
 
 def draw(canvas):
@@ -44,7 +45,7 @@ def draw(canvas):
                               symbol=random.choice(stars), timeout=TIC_TIMEOUT) for _ in range(1, STARS_NUMBER)]
 
     global ORBIT_GARBAGE_COROUTINES
-    garbage_coroutines = fill_orbit_with_garbage(ORBIT_GARBAGE_COROUTINES, canvas, garbage_frames,
+    garbage_coroutines = fill_orbit_with_garbage(ORBIT_GARBAGE_COROUTINES, OBSTACLES_COROUTINES, canvas, garbage_frames,
                                                  max_column=before_border_column, timeout=TIC_TIMEOUT)
 
     while True:
@@ -66,6 +67,12 @@ def draw(canvas):
                 garbage_coroutine.send(None)
             except StopIteration:
                 ORBIT_GARBAGE_COROUTINES.remove(garbage_coroutine)
+
+        for obstacle_coroutine in OBSTACLES_COROUTINES.copy():
+            try:
+                obstacle_coroutine.send(None)
+            except StopIteration:
+                OBSTACLES_COROUTINES.remove(obstacle_coroutine)
 
         canvas.border()
         canvas.refresh()
