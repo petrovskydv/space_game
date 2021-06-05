@@ -29,7 +29,7 @@ async def blink(canvas, row, column, symbol='*', timeout=1):
         await sleep(int(timeout * 0.3))
 
 
-async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0):
+async def fire(canvas, start_row, start_column, rows_speed=-0.1, columns_speed=0):
     """Display animation of gun shot, direction and speed can be specified."""
 
     row, column = start_row, start_column
@@ -53,7 +53,7 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
 
     while 0 < row < max_row and 0 < column < max_column:
         canvas.addstr(round(row), round(column), symbol)
-        await asyncio.sleep(0)
+        await sleep(200)
         canvas.addstr(round(row), round(column), ' ')
         row += rows_speed
         column += columns_speed
@@ -91,7 +91,7 @@ def draw_frame(canvas, start_row, start_column, text, negative=False):
             canvas.addch(row, column, symbol)
 
 
-async def animate_spaceship(canvas, frames_cycle, timeout=1):
+async def animate_spaceship(canvas, frames_cycle, fire_coroutines, timeout=1):
     multiplier = 0.7
     rows_number, columns_number = canvas.getmaxyx()
     row_speed = column_speed = 0
@@ -99,16 +99,18 @@ async def animate_spaceship(canvas, frames_cycle, timeout=1):
     while True:
 
         rows_direction, columns_direction, space_pressed = read_controls(canvas)
+
         global ROW, COLUMN
 
         current_frame, next_frame = next(frames_cycle)
-
         draw_frame(canvas, ROW, COLUMN, current_frame, negative=True)
 
         frame_rows_number, frame_columns_number = get_frame_size(next_frame)
 
-        row_speed, column_speed = update_speed(row_speed, column_speed, rows_direction, columns_direction)
+        if space_pressed:
+            fire_coroutines.append(fire(canvas, ROW, COLUMN + frame_columns_number / 2))
 
+        row_speed, column_speed = update_speed(row_speed, column_speed, rows_direction, columns_direction)
         next_start_row = ROW + rows_direction + row_speed
         next_start_column = COLUMN + columns_direction + column_speed
 
@@ -118,6 +120,7 @@ async def animate_spaceship(canvas, frames_cycle, timeout=1):
             COLUMN = next_start_column
 
         draw_frame(canvas, ROW, COLUMN, next_frame)
+
         await sleep(int(timeout * multiplier))
 
 

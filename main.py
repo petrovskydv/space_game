@@ -2,12 +2,13 @@ import curses
 import random
 from itertools import cycle
 
-from animation import blink, fire, animate_spaceship, fill_orbit_with_garbage
+from animation import blink, animate_spaceship, fill_orbit_with_garbage
 from utils import get_frame
 
 TIC_TIMEOUT = 5000
 STARS_NUMBER = 100
 ORBIT_GARBAGE_COROUTINES = []
+FIRE_COROUTINES = []
 
 
 def draw(canvas):
@@ -19,7 +20,6 @@ def draw(canvas):
     before_border_row = height - 2
     before_border_column = width - 2
     stars = '+*.:'
-    fire_row_number = 10
 
     frame1 = get_frame('frames/rocket_frame_1.txt')
     frame2 = get_frame('frames/rocket_frame_2.txt')
@@ -37,13 +37,11 @@ def draw(canvas):
         (frame2, frame1)
     ]
     frames_cycle = cycle(frames)
-
-    spaceship_coroutine = animate_spaceship(canvas, frames_cycle, timeout=TIC_TIMEOUT)
+    global FIRE_COROUTINES
+    spaceship_coroutine = animate_spaceship(canvas, frames_cycle, fire_coroutines=FIRE_COROUTINES, timeout=TIC_TIMEOUT)
 
     stars_coroutines = [blink(canvas, random.randint(1, before_border_row), random.randint(1, before_border_column),
                               symbol=random.choice(stars), timeout=TIC_TIMEOUT) for _ in range(1, STARS_NUMBER)]
-
-    fire_coroutines = [fire(canvas, before_border_row, fire_row_number)]
 
     global ORBIT_GARBAGE_COROUTINES
     garbage_coroutines = fill_orbit_with_garbage(ORBIT_GARBAGE_COROUTINES, canvas, garbage_frames,
@@ -57,11 +55,11 @@ def draw(canvas):
         spaceship_coroutine.send(None)
         garbage_coroutines.send(None)
 
-        for fire_coroutine in fire_coroutines.copy():
+        for fire_coroutine in FIRE_COROUTINES.copy():
             try:
                 fire_coroutine.send(None)
             except StopIteration:
-                fire_coroutines.remove(fire_coroutine)
+                FIRE_COROUTINES.remove(fire_coroutine)
 
         for garbage_coroutine in ORBIT_GARBAGE_COROUTINES.copy():
             try:
