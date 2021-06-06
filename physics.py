@@ -38,14 +38,14 @@ def _apply_acceleration(speed, speed_limit, forward=True):
 
 def update_speed(row_speed, column_speed, rows_direction, columns_direction, row_speed_limit=2, column_speed_limit=2,
                  fading=0.8):
-    """Update speed smootly to make control handy for player. Return new speed value (row_speed, column_speed)
+    """Update speed smoothly to make control handy for player. Return new speed value (row_speed, column_speed)
     
     rows_direction — is a force direction by rows axis. Possible values:
        -1 — if force pulls up
        0  — if force has no effect
        1  — if force pulls down
 
-    columns_direction — is a force direction by colums axis. Possible values:
+    columns_direction — is a force direction by columns axis. Possible values:
        -1 — if force pulls left
        0  — if force has no effect
        1  — if force pulls right
