@@ -1,7 +1,7 @@
 import curses
 import random
 
-from animation import blink, animate_spaceship, fill_orbit_with_garbage, check_game_over
+from animation import blink, animate_spaceship, fill_orbit_with_garbage, check_game_over, timer
 from curses_tools import show_gameover
 from utils import get_frames, get_cycle_frames
 
@@ -31,6 +31,8 @@ def draw(canvas):
     global FIRE_COROUTINES, ORBIT_GARBAGE_COROUTINES, OBSTACLES_COROUTINES, EXPLODE_COROUTINES
     spaceship_coroutine = animate_spaceship(canvas, frames_cycle, FIRE_COROUTINES, timeout=TIC_TIMEOUT)
 
+    timer_coroutine = timer(canvas)
+
     stars_coroutines = [blink(canvas, random.randint(1, before_border_row), random.randint(1, before_border_column),
                               symbol=random.choice(stars), timeout=TIC_TIMEOUT) for _ in range(1, STARS_NUMBER)]
 
@@ -55,6 +57,7 @@ def draw(canvas):
 
             spaceship_coroutine.send(None)
             garbage_coroutines.send(None)
+            timer_coroutine.send(None)
 
             for fire_coroutine in FIRE_COROUTINES.copy():
                 try:

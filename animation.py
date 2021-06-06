@@ -5,6 +5,7 @@ import uuid
 
 from curses_tools import draw_frame, get_frame_size, read_controls
 from explosion import explode
+from game_scenario import get_garbage_delay_tics
 from obstacles import Obstacle
 from physics import update_speed
 from utils import sleep
@@ -14,6 +15,7 @@ COLUMN = 40
 OBSTACLES = []
 OBSTACLES_IN_LAST_COLLISIONS = []
 GAME_OVER = False
+CURRENT_YEAR = 1956
 
 
 async def blink(canvas, row, column, symbol='*', timeout=1):
@@ -29,6 +31,14 @@ async def blink(canvas, row, column, symbol='*', timeout=1):
 
         canvas.addstr(row, column, symbol)
         await sleep(int(timeout * 0.3))
+
+
+async def timer(canvas):
+    global CURRENT_YEAR
+    while True:
+        CURRENT_YEAR += 1
+        draw_frame(canvas, 1, 1, str(CURRENT_YEAR))
+        await sleep(10000)
 
 
 async def fire(canvas, start_row, start_column, rows_speed=-0.1, columns_speed=0):
@@ -154,11 +164,6 @@ async def fill_orbit_with_garbage(garbage_coroutines, obstacles_coroutines, expl
         )
         OBSTACLES.append(obstacle)
 
-        draw_frame(canvas, 2, 2, str(len(OBSTACLES)))
-        draw_frame(canvas, 3, 2, str(len(OBSTACLES_IN_LAST_COLLISIONS)))
-
-        # obstacles_coroutines.append(show_obstacles(canvas, OBSTACLES))
-
         garbage_coroutines.append(
             fly_garbage(
                 canvas,
@@ -170,7 +175,8 @@ async def fill_orbit_with_garbage(garbage_coroutines, obstacles_coroutines, expl
             )
         )
 
-        await sleep(int(timeout * 5))
+        delay = get_garbage_delay_tics(CURRENT_YEAR)
+        await sleep(timeout * (delay if delay else 30))
 
 
 def check_game_over():
