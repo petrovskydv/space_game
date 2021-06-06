@@ -51,7 +51,12 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.1, columns_speed=0
 
     while 0 < row < max_row and 0 < column < max_column:
         canvas.addstr(round(row), round(column), symbol)
-        await sleep(200)
+
+        for obstacle in OBSTACLES:
+            if obstacle.has_collision(round(row), round(column)):
+                return
+
+        await sleep(100)
         canvas.addstr(round(row), round(column), ' ')
         row += rows_speed
         column += columns_speed
@@ -108,7 +113,8 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5, timeout=1, obsta
         row += speed
 
 
-async def fill_orbit_with_garbage(garbage_coroutines, obstacles_coroutines, canvas, garbage_frames, max_column, timeout=1):
+async def fill_orbit_with_garbage(garbage_coroutines, obstacles_coroutines, canvas, garbage_frames, max_column,
+                                  timeout=1):
     while True:
         frame = random.choice(garbage_frames)
         frame_rows_number, frame_columns_number = get_frame_size(frame)

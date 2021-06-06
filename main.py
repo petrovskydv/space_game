@@ -4,7 +4,7 @@ import random
 from animation import blink, animate_spaceship, fill_orbit_with_garbage
 from utils import get_garbage_frames, ger_rocket_frames, get_cycle_frames
 
-TIC_TIMEOUT = 2000
+TIC_TIMEOUT = 1000
 STARS_NUMBER = 100
 ORBIT_GARBAGE_COROUTINES = []
 FIRE_COROUTINES = []
