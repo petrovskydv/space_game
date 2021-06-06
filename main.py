@@ -9,7 +9,6 @@ TIC_TIMEOUT = 3000
 STARS_NUMBER = 100
 ORBIT_GARBAGE_COROUTINES = []
 FIRE_COROUTINES = []
-OBSTACLES_COROUTINES = []
 EXPLODE_COROUTINES = []
 
 
@@ -38,7 +37,6 @@ def draw(canvas):
 
     garbage_coroutines = fill_orbit_with_garbage(
         ORBIT_GARBAGE_COROUTINES,
-        OBSTACLES_COROUTINES,
         EXPLODE_COROUTINES,
         canvas,
         garbage_frames,
@@ -76,12 +74,6 @@ def draw(canvas):
                     explode_coroutine.send(None)
                 except StopIteration:
                     EXPLODE_COROUTINES.remove(explode_coroutine)
-
-            for obstacle_coroutine in OBSTACLES_COROUTINES.copy():
-                try:
-                    obstacle_coroutine.send(None)
-                except StopIteration:
-                    OBSTACLES_COROUTINES.remove(obstacle_coroutine)
 
             canvas.border()
             canvas.refresh()

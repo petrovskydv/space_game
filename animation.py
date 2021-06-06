@@ -145,8 +145,8 @@ async def fly_garbage(canvas, column, garbage_frame, explode_coroutines, speed=0
         OBSTACLES.remove(obstacle)
 
 
-async def fill_orbit_with_garbage(garbage_coroutines, obstacles_coroutines, explode_coroutines, canvas, garbage_frames,
-                                  max_column, timeout=1):
+async def fill_orbit_with_garbage(garbage_coroutines, explode_coroutines, canvas, garbage_frames, max_column,
+                                  timeout=1):
     while True:
         frame = random.choice(garbage_frames)
         frame_rows_number, frame_columns_number = get_frame_size(frame)
