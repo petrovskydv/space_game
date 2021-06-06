@@ -7,6 +7,7 @@ from curses_tools import draw_frame, get_frame_size, read_controls
 from explosion import explode
 from obstacles import Obstacle
 from physics import update_speed
+from utils import sleep
 
 ROW = 15
 COLUMN = 40
@@ -170,11 +171,6 @@ async def fill_orbit_with_garbage(garbage_coroutines, obstacles_coroutines, expl
         )
 
         await sleep(int(timeout * 5))
-
-
-async def sleep(tics=1):
-    for _ in range(tics):
-        await asyncio.sleep(0)
 
 
 def check_game_over():

@@ -1,3 +1,4 @@
+import asyncio
 from itertools import cycle
 
 
@@ -15,6 +16,8 @@ def get_garbage_frames():
         get_frame('frames/trash_small.txt'),
         get_frame('frames/trash_xl.txt'),
     ]
+
+
 # TODO избавиться от захардкоженных путей
 
 def ger_rocket_frames():
@@ -30,3 +33,8 @@ def get_cycle_frames(frame1, frame2):
     ]
     frames_cycle = cycle(frames)
     return frames_cycle
+
+
+async def sleep(tics=1):
+    for _ in range(tics):
+        await asyncio.sleep(0)
