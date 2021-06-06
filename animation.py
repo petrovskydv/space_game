@@ -111,6 +111,9 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5, timeout=1, obsta
         obstacle.row = row
         obstacle.column = column
         row += speed
+    else:
+        OBSTACLES.remove(obstacle)
+
 
 
 async def fill_orbit_with_garbage(garbage_coroutines, obstacles_coroutines, canvas, garbage_frames, max_column,
