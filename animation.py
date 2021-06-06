@@ -4,12 +4,13 @@ import random
 import uuid
 
 from curses_tools import draw_frame, get_frame_size, read_controls
-from obstacles import Obstacle, show_obstacles
+from obstacles import Obstacle
 from physics import update_speed
 
-ROW = 1
+ROW = 15
 COLUMN = 40
 OBSTACLES = []
+OBSTACLES_IN_LAST_COLLISIONS = []
 
 
 async def blink(canvas, row, column, symbol='*', timeout=1):
@@ -51,13 +52,13 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.1, columns_speed=0
 
     while 0 < row < max_row and 0 < column < max_column:
         canvas.addstr(round(row), round(column), symbol)
-
+        await sleep(50)
+        canvas.addstr(round(row), round(column), ' ')
         for obstacle in OBSTACLES:
             if obstacle.has_collision(round(row), round(column)):
+                global OBSTACLES_IN_LAST_COLLISIONS
+                OBSTACLES_IN_LAST_COLLISIONS.append(obstacle)
                 return
-
-        await sleep(100)
-        canvas.addstr(round(row), round(column), ' ')
         row += rows_speed
         column += columns_speed
 
@@ -111,9 +112,12 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5, timeout=1, obsta
         obstacle.row = row
         obstacle.column = column
         row += speed
+        global OBSTACLES_IN_LAST_COLLISIONS
+        if obstacle in OBSTACLES_IN_LAST_COLLISIONS:
+            OBSTACLES_IN_LAST_COLLISIONS.remove(obstacle)
+            break
     else:
         OBSTACLES.remove(obstacle)
-
 
 
 async def fill_orbit_with_garbage(garbage_coroutines, obstacles_coroutines, canvas, garbage_frames, max_column,
@@ -144,7 +148,7 @@ async def fill_orbit_with_garbage(garbage_coroutines, obstacles_coroutines, canv
                 obstacle=obstacle
             )
         )
-        obstacles_coroutines.append(show_obstacles(canvas, OBSTACLES))
+
         await sleep(int(timeout * 5))
 
 
