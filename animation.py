@@ -4,6 +4,7 @@ import random
 import uuid
 
 from curses_tools import draw_frame, get_frame_size, read_controls
+from explosion import explode
 from obstacles import Obstacle
 from physics import update_speed
 
@@ -11,6 +12,7 @@ ROW = 15
 COLUMN = 40
 OBSTACLES = []
 OBSTACLES_IN_LAST_COLLISIONS = []
+GAME_OVER = False
 
 
 async def blink(canvas, row, column, symbol='*', timeout=1):
@@ -52,7 +54,7 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.1, columns_speed=0
 
     while 0 < row < max_row and 0 < column < max_column:
         canvas.addstr(round(row), round(column), symbol)
-        await sleep(50)
+        await sleep(20)
         canvas.addstr(round(row), round(column), ' ')
         for obstacle in OBSTACLES:
             if obstacle.has_collision(round(row), round(column)):
@@ -72,7 +74,7 @@ async def animate_spaceship(canvas, frames_cycle, fire_coroutines, timeout=1):
 
         rows_direction, columns_direction, space_pressed = read_controls(canvas)
 
-        global ROW, COLUMN
+        global ROW, COLUMN, GAME_OVER
 
         current_frame, next_frame = next(frames_cycle)
         draw_frame(canvas, ROW, COLUMN, current_frame, negative=True)
@@ -81,6 +83,10 @@ async def animate_spaceship(canvas, frames_cycle, fire_coroutines, timeout=1):
 
         if space_pressed:
             fire_coroutines.append(fire(canvas, ROW, COLUMN + frame_columns_number / 2))
+
+        for obstacle in OBSTACLES:
+            if obstacle.has_collision(ROW, COLUMN + frame_columns_number / 2):
+                GAME_OVER = True
 
         row_speed, column_speed = update_speed(row_speed, column_speed, rows_direction, columns_direction)
         next_start_row = ROW + rows_direction + row_speed
@@ -96,7 +102,7 @@ async def animate_spaceship(canvas, frames_cycle, fire_coroutines, timeout=1):
         await sleep(int(timeout * multiplier))
 
 
-async def fly_garbage(canvas, column, garbage_frame, speed=0.5, timeout=1, obstacle=None):
+async def fly_garbage(canvas, column, garbage_frame, explode_coroutines, speed=0.5, timeout=1, obstacle=None):
     """Animate garbage, flying from top to bottom. Column position will stay same, as specified on start."""
     rows_number, columns_number = canvas.getmaxyx()
 
@@ -105,6 +111,8 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5, timeout=1, obsta
 
     row = 0
 
+    global OBSTACLES_IN_LAST_COLLISIONS, OBSTACLES
+
     while row < rows_number:
         draw_frame(canvas, row, column, garbage_frame)
         await sleep(int(timeout * 0.2))
@@ -112,16 +120,22 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5, timeout=1, obsta
         obstacle.row = row
         obstacle.column = column
         row += speed
-        global OBSTACLES_IN_LAST_COLLISIONS
+
         if obstacle in OBSTACLES_IN_LAST_COLLISIONS:
             OBSTACLES_IN_LAST_COLLISIONS.remove(obstacle)
-            break
+            explode_coroutines.append(
+                explode(
+                    canvas,
+                    row + obstacle.rows_size / 2,
+                    column + obstacle.columns_size / 2)
+            )
+            row = rows_number
     else:
         OBSTACLES.remove(obstacle)
 
 
-async def fill_orbit_with_garbage(garbage_coroutines, obstacles_coroutines, canvas, garbage_frames, max_column,
-                                  timeout=1):
+async def fill_orbit_with_garbage(garbage_coroutines, obstacles_coroutines, explode_coroutines, canvas, garbage_frames,
+                                  max_column, timeout=1):
     while True:
         frame = random.choice(garbage_frames)
         frame_rows_number, frame_columns_number = get_frame_size(frame)
@@ -139,11 +153,17 @@ async def fill_orbit_with_garbage(garbage_coroutines, obstacles_coroutines, canv
         )
         OBSTACLES.append(obstacle)
 
+        draw_frame(canvas, 2, 2, str(len(OBSTACLES)))
+        draw_frame(canvas, 3, 2, str(len(OBSTACLES_IN_LAST_COLLISIONS)))
+
+        # obstacles_coroutines.append(show_obstacles(canvas, OBSTACLES))
+
         garbage_coroutines.append(
             fly_garbage(
                 canvas,
                 column=frame_column,
                 garbage_frame=frame,
+                explode_coroutines=explode_coroutines,
                 timeout=timeout,
                 obstacle=obstacle
             )
@@ -155,3 +175,7 @@ async def fill_orbit_with_garbage(garbage_coroutines, obstacles_coroutines, canv
 async def sleep(tics=1):
     for _ in range(tics):
         await asyncio.sleep(0)
+
+
+def check_game_over():
+    return GAME_OVER
