@@ -16,6 +16,7 @@ OBSTACLES = []
 OBSTACLES_IN_LAST_COLLISIONS = []
 GAME_OVER = False
 CURRENT_YEAR = 1956
+GUN_APPEARANCE_YEAR = 2020
 
 
 async def blink(canvas, row, column, symbol='*', timeout=1):
@@ -92,7 +93,7 @@ async def animate_spaceship(canvas, frames_cycle, fire_coroutines, timeout=1):
 
         frame_rows_number, frame_columns_number = get_frame_size(next_frame)
 
-        if space_pressed:
+        if space_pressed and GUN_APPEARANCE_YEAR >= 2019:
             fire_coroutines.append(fire(canvas, ROW, COLUMN + frame_columns_number / 2))
 
         for obstacle in OBSTACLES:
