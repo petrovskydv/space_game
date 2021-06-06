@@ -3,7 +3,7 @@ import random
 
 from animation import blink, animate_spaceship, fill_orbit_with_garbage, check_game_over
 from curses_tools import show_gameover
-from utils import get_garbage_frames, ger_rocket_frames, get_cycle_frames
+from utils import get_frames, get_cycle_frames
 
 TIC_TIMEOUT = 3000
 STARS_NUMBER = 100
@@ -22,9 +22,11 @@ def draw(canvas):
     before_border_row = height - 2
     before_border_column = width - 2
     stars = '+*.:'
+    garbage_folder_path = 'frames/garbage/'
+    rocket_folder_path = 'frames/rocket/'
 
-    garbage_frames = get_garbage_frames()
-    frames_cycle = get_cycle_frames(*ger_rocket_frames())
+    garbage_frames = get_frames(garbage_folder_path)
+    frames_cycle = get_cycle_frames(*get_frames(rocket_folder_path))
 
     global FIRE_COROUTINES, ORBIT_GARBAGE_COROUTINES, OBSTACLES_COROUTINES, EXPLODE_COROUTINES
     spaceship_coroutine = animate_spaceship(canvas, frames_cycle, FIRE_COROUTINES, timeout=TIC_TIMEOUT)
