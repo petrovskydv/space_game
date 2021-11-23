@@ -3,6 +3,7 @@ import curses
 import random
 import uuid
 
+from common import coroutines
 from curses_tools import draw_frame, get_frame_size, read_controls
 from explosion import explode
 from game_scenario import get_garbage_delay_tics
@@ -16,7 +17,7 @@ OBSTACLES = []
 OBSTACLES_IN_LAST_COLLISIONS = []
 GAME_OVER = False
 CURRENT_YEAR = 1956
-GUN_APPEARANCE_YEAR = 2020
+GUN_APPEARANCE_YEAR = 1970
 
 
 async def blink(canvas, row, column, symbol='*', timeout=1):
@@ -77,7 +78,7 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.1, columns_speed=0
         column += columns_speed
 
 
-async def animate_spaceship(canvas, frames_cycle, fire_coroutines, timeout=1):
+async def animate_spaceship(canvas, frames_cycle, timeout=1):
     multiplier = 0.7
     rows_number, columns_number = canvas.getmaxyx()
     row_speed = column_speed = 0
@@ -93,12 +94,9 @@ async def animate_spaceship(canvas, frames_cycle, fire_coroutines, timeout=1):
 
         frame_rows_number, frame_columns_number = get_frame_size(next_frame)
 
-        if space_pressed and GUN_APPEARANCE_YEAR >= 2019:
-            fire_coroutines.append(fire(canvas, ROW, COLUMN + frame_columns_number / 2))
+        await process_shot(COLUMN, ROW, canvas, frame_columns_number, space_pressed)
 
-        for obstacle in OBSTACLES:
-            if obstacle.has_collision(ROW, COLUMN + frame_columns_number / 2):
-                GAME_OVER = True
+        await check_collision(COLUMN, ROW, frame_columns_number)
 
         row_speed, column_speed = update_speed(row_speed, column_speed, rows_direction, columns_direction)
         next_start_row = ROW + rows_direction + row_speed
@@ -114,7 +112,19 @@ async def animate_spaceship(canvas, frames_cycle, fire_coroutines, timeout=1):
         await sleep(int(timeout * multiplier))
 
 
-async def fly_garbage(canvas, column, garbage_frame, explode_coroutines, speed=0.5, timeout=1, obstacle=None):
+async def check_collision(column, row, frame_columns_number):
+    global GAME_OVER
+    for obstacle in OBSTACLES:
+        if obstacle.has_collision(row, column + frame_columns_number / 2):
+            GAME_OVER = True
+
+
+async def process_shot(column, row, canvas, frame_columns_number, space_pressed):
+    if space_pressed and GUN_APPEARANCE_YEAR <= CURRENT_YEAR:
+        coroutines.append(fire(canvas, row, column + frame_columns_number / 2))
+
+
+async def fly_garbage(canvas, column, garbage_frame, speed=0.5, timeout=1, obstacle=None):
     """Animate garbage, flying from top to bottom. Column position will stay same, as specified on start."""
     rows_number, columns_number = canvas.getmaxyx()
 
@@ -135,7 +145,7 @@ async def fly_garbage(canvas, column, garbage_frame, explode_coroutines, speed=0
 
         if obstacle in OBSTACLES_IN_LAST_COLLISIONS:
             OBSTACLES_IN_LAST_COLLISIONS.remove(obstacle)
-            explode_coroutines.append(
+            coroutines.append(
                 explode(
                     canvas,
                     row + obstacle.rows_size / 2,
@@ -146,7 +156,7 @@ async def fly_garbage(canvas, column, garbage_frame, explode_coroutines, speed=0
         OBSTACLES.remove(obstacle)
 
 
-async def fill_orbit_with_garbage(garbage_coroutines, explode_coroutines, canvas, garbage_frames, max_column,
+async def fill_orbit_with_garbage(canvas, garbage_frames, max_column,
                                   timeout=1):
     while True:
         frame = random.choice(garbage_frames)
@@ -165,12 +175,11 @@ async def fill_orbit_with_garbage(garbage_coroutines, explode_coroutines, canvas
         )
         OBSTACLES.append(obstacle)
 
-        garbage_coroutines.append(
+        coroutines.append(
             fly_garbage(
                 canvas,
                 column=frame_column,
                 garbage_frame=frame,
-                explode_coroutines=explode_coroutines,
                 timeout=timeout,
                 obstacle=obstacle
             )
